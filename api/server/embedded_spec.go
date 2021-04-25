@@ -60,13 +60,19 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Request was processed successfully."
+            "description": "Request was processed successfully.",
+            "schema": {
+              "type": "string"
+            }
           },
           "400": {
             "description": "Hash prefix must be exactly 5 characters long."
           },
           "404": {
             "description": "No results found."
+          },
+          "500": {
+            "description": "Server encountered an error."
           }
         }
       }
@@ -116,13 +122,19 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Request was processed successfully."
+            "description": "Request was processed successfully.",
+            "schema": {
+              "type": "string"
+            }
           },
           "400": {
             "description": "Hash prefix must be exactly 5 characters long."
           },
           "404": {
             "description": "No results found."
+          },
+          "500": {
+            "description": "Server encountered an error."
           }
         }
       }

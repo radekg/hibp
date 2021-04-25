@@ -35,8 +35,6 @@ func init() {
 
 func run(cmd *cobra.Command, _ []string) error {
 
-	// this Pings the database trying to connect
-	// use sqlx.Open() for sql.Open() semantics
 	db, err := sqlx.Connect("postgres", config.dsn)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error establishing database connection", err)

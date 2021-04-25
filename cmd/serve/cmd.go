@@ -3,14 +3,21 @@ package serve
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/radekg/hibp/api/server"
 	"github.com/radekg/hibp/api/server/restapi"
 	"github.com/radekg/hibp/api/server/restapi/range_restapi"
+	"github.com/radekg/hibp/model"
 	"github.com/spf13/cobra"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime/middleware"
+
+	"github.com/jmoiron/sqlx"
+
+	// import postgres
+	_ "github.com/lib/pq"
 )
 
 // Command is the cobra command.
@@ -21,6 +28,7 @@ var Command = &cobra.Command{
 }
 
 type commandConfig struct {
+	dsn      string
 	bindHost string
 	bindPort int
 	schemes  []string
@@ -29,6 +37,7 @@ type commandConfig struct {
 var config = new(commandConfig)
 
 func initFlags() {
+	Command.Flags().StringVar(&config.dsn, "dsn", "", "Database connection string")
 	Command.Flags().StringVar(&config.bindHost, "host", "127.0.0.1", "Host to bind the API on")
 	Command.Flags().IntVar(&config.bindPort, "port", 15000, "Port to bind the API on")
 	Command.Flags().StringSliceVar(&config.schemes, "scheme", []string{"http"}, "Enabled schemes")
@@ -40,6 +49,13 @@ func init() {
 
 func run(cmd *cobra.Command, _ []string) error {
 
+	db, err := sqlx.Connect("postgres", config.dsn)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "error establishing database connection", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
 	doc, err := loads.Embedded(server.SwaggerJSON, server.FlatSwaggerJSON)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error loading Swagger file", err)
@@ -48,10 +64,35 @@ func run(cmd *cobra.Command, _ []string) error {
 
 	api := restapi.NewSelfHostedHIBPPasswordHashCheckerAPI(doc)
 	api.RangeRestapiRangeSearchHandler = range_restapi.RangeSearchHandlerFunc(func(rsp range_restapi.RangeSearchParams) middleware.Responder {
+
+		// make sure input is correct:
 		if len(rsp.HashPrefix) != 5 {
 			return range_restapi.NewRangeSearchBadRequest()
 		}
-		return nil
+
+		// select stuff:
+		rows, err := db.NamedQuery(`select \"hash\", \"count\" from hibp where \"prefix\"=:prefix`,
+			map[string]interface{}{
+				"prefix": strings.ToUpper(rsp.HashPrefix),
+			})
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "error while executing SQL query", err)
+			return range_restapi.NewRangeSearchInternalServerError()
+		}
+
+		var sb strings.Builder
+
+		row := model.Row{}
+		for rows.Next() {
+			err := rows.StructScan(&row)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "error while processing response record", err)
+				return range_restapi.NewRangeSearchInternalServerError()
+			}
+			sb.WriteString(fmt.Sprintf("%s:%d\n", row.Hash, row.Count))
+		}
+
+		return range_restapi.NewRangeSearchOK().WithPayload(sb.String())
 	})
 
 	s := server.NewServer(api)

@@ -36,32 +36,32 @@ In another terminal:
 
 ```sh
 docker run --rm \
-    -net=compose_hibpexample \
+    --net=compose_hibpexample \
     localhost/hibp:latest \
     migrate --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable
 ```
 
 ### Import the data
 
-This will take some time, there are over 613 million lines in the file.
+This will take some time, there are over 613 million lines in the file. Here, I'm using the `/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt` file on the host and `/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt` in the container:
 
 ```sh
 docker run --rm \
     -net=compose_hibpexample \
-    -v=path/to/the/pwned-passwords-sha1-ordered-by-count-vX.txt:/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt \
+    -v=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt:/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt \
     localhost/hibp:latest \
     data-import --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable \
-      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt
+      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt
 ```
 
 For testing, you can import X first lines using the `--first=X` flag, line this:
 
 ```sh
 docker run --rm \
-    -net=compose_hibpexample \
-    -v=path/to/the/pwned-passwords-sha1-ordered-by-count-vX.txt:/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt \
+    --net=compose_hibpexample \
+    -v=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt:/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt \
     localhost/hibp:latest \
     data-import --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable \
-      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt \
-      --first=1000
+      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt \
+      --first=10000
 ```

@@ -16,7 +16,7 @@ services:
     depends_on:
       - postgres
     image: localhost/hibp:latest
-    command: [serve, --host=0.0.0.0]
+    command: [serve, --host=0.0.0.0, '--dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable']
     restart: unless-stopped
     ports:
       - 15000:15000

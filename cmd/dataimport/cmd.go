@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/radekg/hibp/model"
 	"github.com/spf13/cobra"
 
 	"github.com/jmoiron/sqlx"
@@ -41,12 +42,6 @@ func initFlags() {
 
 func init() {
 	initFlags()
-}
-
-type row struct {
-	Prefix string `db:"prefix"`
-	Hash   string `db:"hash"`
-	Count  int    `db:"count"`
 }
 
 func run(cmd *cobra.Command, _ []string) error {
@@ -94,7 +89,7 @@ func run(cmd *cobra.Command, _ []string) error {
 			continue
 		}
 
-		_, sqlErr := db.NamedExec("insert into hibp (\"prefix\",\"hash\",\"count\") values (:prefix, :hash, :count)", row{Prefix: hash[0:5], Hash: hash, Count: count})
+		_, sqlErr := db.NamedExec("insert into hibp (\"prefix\",\"hash\",\"count\") values (:prefix, :hash, :count)", model.Row{Prefix: hash[0:5], Hash: hash, Count: count})
 		if sqlErr != nil {
 			fmt.Fprintln(os.Stderr, "line", currentLine, "no inserted because of an SQL error", sqlErr)
 		}
