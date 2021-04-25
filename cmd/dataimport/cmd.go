@@ -43,6 +43,12 @@ func init() {
 	initFlags()
 }
 
+type row struct {
+	Prefix string `db:"prefix"`
+	Hash   string `db:"hash"`
+	Count  int    `db:"count"`
+}
+
 func run(cmd *cobra.Command, _ []string) error {
 
 	db, err := sqlx.Connect("postgres", config.dsn)
@@ -88,7 +94,7 @@ func run(cmd *cobra.Command, _ []string) error {
 			continue
 		}
 
-		_, sqlErr := db.Exec("insert into hibp (`prefix`,`hash`,`count`) values ($1, $2, $3)", hash[0:5], hash, count)
+		_, sqlErr := db.NamedExec("insert into hibp (`prefix`,`hash`,`count`) values (:prefix, :hash, :count)", row{Prefix: hash[0:5], Hash: hash, Count: count})
 		if sqlErr != nil {
 			fmt.Fprintln(os.Stderr, "line", currentLine, "no inserted because of an SQL error", sqlErr)
 		}
