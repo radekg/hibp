@@ -21,6 +21,6 @@ services:
     ports:
       - 15000:15000
     networks:
-      - reference
+      - hibpexample
 networks:
   hibpexample:
