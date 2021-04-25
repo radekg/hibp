@@ -16,7 +16,7 @@ services:
     depends_on:
       - postgres
     image: localhost/hibp:latest
-    command: [serve, --bind-host=0.0.0.0]
+    command: [serve, --host=0.0.0.0]
     restart: unless-stopped
     ports:
       - 15000:15000

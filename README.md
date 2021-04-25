@@ -29,3 +29,39 @@ make docker-build
 cd compose/
 docker-compose -f compose.yml up
 ```
+
+## Create the table
+
+In another terminal:
+
+```sh
+docker run --rm \
+    -net=compose_hibpexample \
+    localhost/hibp:latest \
+    migrate --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable
+```
+
+### Import the data
+
+This will take some time, there are over 613 million lines in the file.
+
+```sh
+docker run --rm \
+    -net=compose_hibpexample \
+    -v=path/to/the/pwned-passwords-sha1-ordered-by-count-vX.txt:/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt \
+    localhost/hibp:latest \
+    data-import --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable \
+      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt
+```
+
+For testing, you can import X first lines using the `--first=X` flag, line this:
+
+```sh
+docker run --rm \
+    -net=compose_hibpexample \
+    -v=path/to/the/pwned-passwords-sha1-ordered-by-count-vX.txt:/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt \
+    localhost/hibp:latest \
+    data-import --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable \
+      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-vX.txt \
+      --first=1000
+```

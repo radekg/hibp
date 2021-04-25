@@ -25,16 +25,18 @@ var Command = &cobra.Command{
 
 type commandConfig struct {
 	dsn        string
-	pwdFile    string
+	first      int
 	noTruncate bool
+	pwdFile    string
 }
 
 var config = new(commandConfig)
 
 func initFlags() {
 	Command.Flags().StringVar(&config.dsn, "dsn", "", "Database connection string")
-	Command.Flags().StringVar(&config.pwdFile, "password-file", "", "Password file path")
+	Command.Flags().IntVar(&config.first, "first", 0, "If greater than 0, limits the import to first N lines")
 	Command.Flags().BoolVar(&config.noTruncate, "no-truncate", false, "If set, do not truncate the table before import")
+	Command.Flags().StringVar(&config.pwdFile, "password-file", "", "Password file path")
 }
 
 func init() {
@@ -69,6 +71,11 @@ func run(cmd *cobra.Command, _ []string) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		currentLine = currentLine + 1
+
+		if config.first > 0 && config.first < currentLine {
+			break
+		}
+
 		parts := strings.Split(strings.TrimSpace(scanner.Text()), ":")
 		if len(parts) != 2 {
 			fmt.Fprintln(os.Stderr, "line", currentLine, "skipped, split by ':' did not result in 2 items")
@@ -89,7 +96,6 @@ func run(cmd *cobra.Command, _ []string) error {
 		if currentLine%1000 == 0 {
 			fmt.Println("imported ", currentLine, "no inserted because of an SQL error", sqlErr)
 		}
-
 	}
 
 	if err := scanner.Err(); err != nil {
