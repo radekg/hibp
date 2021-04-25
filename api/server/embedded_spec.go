@@ -66,13 +66,19 @@ func init() {
             }
           },
           "400": {
-            "description": "Hash prefix must be exactly 5 characters long."
+            "description": "Hash prefix must be exactly 5 characters long.",
+            "schema": {
+              "type": "string"
+            }
           },
           "404": {
             "description": "No results found."
           },
           "500": {
-            "description": "Server encountered an error."
+            "description": "Server encountered an error.",
+            "schema": {
+              "type": "string"
+            }
           }
         }
       }
@@ -128,13 +134,19 @@ func init() {
             }
           },
           "400": {
-            "description": "Hash prefix must be exactly 5 characters long."
+            "description": "Hash prefix must be exactly 5 characters long.",
+            "schema": {
+              "type": "string"
+            }
           },
           "404": {
             "description": "No results found."
           },
           "500": {
-            "description": "Server encountered an error."
+            "description": "Server encountered an error.",
+            "schema": {
+              "type": "string"
+            }
           }
         }
       }

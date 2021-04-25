@@ -61,6 +61,11 @@ const RangeSearchBadRequestCode int = 400
 swagger:response rangeSearchBadRequest
 */
 type RangeSearchBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload string `json:"body,omitempty"`
 }
 
 // NewRangeSearchBadRequest creates RangeSearchBadRequest with default headers values
@@ -69,12 +74,25 @@ func NewRangeSearchBadRequest() *RangeSearchBadRequest {
 	return &RangeSearchBadRequest{}
 }
 
+// WithPayload adds the payload to the range search bad request response
+func (o *RangeSearchBadRequest) WithPayload(payload string) *RangeSearchBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the range search bad request response
+func (o *RangeSearchBadRequest) SetPayload(payload string) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *RangeSearchBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // RangeSearchNotFoundCode is the HTTP code returned for type RangeSearchNotFound
@@ -109,6 +127,11 @@ const RangeSearchInternalServerErrorCode int = 500
 swagger:response rangeSearchInternalServerError
 */
 type RangeSearchInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload string `json:"body,omitempty"`
 }
 
 // NewRangeSearchInternalServerError creates RangeSearchInternalServerError with default headers values
@@ -117,10 +140,23 @@ func NewRangeSearchInternalServerError() *RangeSearchInternalServerError {
 	return &RangeSearchInternalServerError{}
 }
 
+// WithPayload adds the payload to the range search internal server error response
+func (o *RangeSearchInternalServerError) WithPayload(payload string) *RangeSearchInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the range search internal server error response
+func (o *RangeSearchInternalServerError) SetPayload(payload string) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *RangeSearchInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }

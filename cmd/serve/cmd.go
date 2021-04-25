@@ -70,29 +70,46 @@ func run(cmd *cobra.Command, _ []string) error {
 			return range_restapi.NewRangeSearchBadRequest()
 		}
 
-		// select stuff:
-		rows, err := db.NamedQuery(`select \"hash\", \"count\" from hibp where \"prefix\"=:prefix`,
+		// select items from the database:
+		rows, err := db.NamedQuery("select \"hash\", \"count\" from hibp where \"prefix\"=:prefix",
 			map[string]interface{}{
 				"prefix": strings.ToUpper(rsp.HashPrefix),
 			})
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "error while executing SQL query", err)
-			return range_restapi.NewRangeSearchInternalServerError()
+			return range_restapi.
+				NewRangeSearchInternalServerError().
+				WithPayload("error while executing SQL query")
 		}
 
 		var sb strings.Builder
 
 		row := model.Row{}
+		foundRows := 0
+
+		// read data out of the SQL result:
 		for rows.Next() {
+			foundRows = foundRows + 1
 			err := rows.StructScan(&row)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, "error while processing response record", err)
-				return range_restapi.NewRangeSearchInternalServerError()
+				return range_restapi.
+					NewRangeSearchInternalServerError().
+					WithPayload("error while processing response record")
 			}
 			sb.WriteString(fmt.Sprintf("%s:%d\n", row.Hash, row.Count))
 		}
 
-		return range_restapi.NewRangeSearchOK().WithPayload(sb.String())
+		// if nothing found, return 404
+		// according to the data documentation from HiBP, this should never be the case when
+		// full data set is imported, but we should handle this anyway
+		if foundRows == 0 {
+			return range_restapi.NewRangeSearchNotFound()
+		}
+
+		// everything went okay, return records
+		return range_restapi.NewRangeSearchOK().
+			WithPayload(sb.String())
 	})
 
 	s := server.NewServer(api)
