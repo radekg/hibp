@@ -1,0 +1,26 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: hibp
+      POSTGRES_USER: hibp
+      POSTGRES_PASSWORD: hibp
+    ports:
+      - "5432:5432"
+    networks:
+      - hibpexample
+  hibp:
+    depends_on:
+      - postgres
+    image: localhost/hibp:latest
+    command: [serve, --host=0.0.0.0, '--dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable']
+    restart: unless-stopped
+    ports:
+      - 15000:15000
+    networks:
+      - hibpexample
+networks:
+  hibpexample:

@@ -1,3 +1,75 @@
 # Self-hosted HIBP password hash check only
 
-Work in progress.
+This is an example of self-hosted HiBP pwned password list API with the k-anonymity setting. This code serves as an example for setting up [self-hosted HiBP for Ory Kratos](https://github.com/ory/kratos/pull/1009#issuecomment-826372061).
+
+## Download the passwords SHA-1 by count file
+
+Download the SHA-1 7zip archive from HiBP website. The most up to date file can be downloaded from https://haveibeenpwned.com/Passwords. The compressed file is 12.5GB, 26GB decompressed. The file is a text file with each line in the following format:
+
+```
+SHA-SUM-41-CHARS-LONG:INT-COUNT
+```
+
+On Ubuntu (requires ~40GB free space in `/tmp`):
+
+```sh
+sudo apt-get install p7zip-full
+cd /tmp
+wget https://downloads.pwnedpasswords.com/passwords/pwned-passwords-sha1-ordered-by-count-v7.7z
+p7zip -d pwned-passwords-sha1-ordered-by-count-v7.7z
+```
+
+## Build the Docker image:
+
+```
+make docker-build
+```
+
+## Start the example Docker compose environment
+
+```sh
+cd examples/compose/
+docker-compose -f compose.yml up
+```
+
+## Create the table
+
+By following this readme, the Docker compose setup creates a network called `compose_hibpexample`. Hence, in another terminal:
+
+```sh
+docker run --rm \
+    --net=compose_hibpexample \
+    localhost/hibp:latest \
+    migrate --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable
+```
+
+This command should exit without any output. No output means it executed okay.
+
+### Import the data
+
+This will take some time, there are over 613 million lines in the V7 file. Here, I'm using the `/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt` file on the host and `/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt` in the container:
+
+```sh
+docker run --rm \
+    -net=compose_hibpexample \
+    -v=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt:/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt \
+    localhost/hibp:latest \
+    data-import --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable \
+      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt
+```
+
+For testing, you can import X first lines using the `--first=X` flag, line this:
+
+```sh
+docker run --rm \
+    --net=compose_hibpexample \
+    -v=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt:/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt \
+    localhost/hibp:latest \
+    data-import --dsn=postgres://hibp:hibp@postgres:5432/hibp?sslmode=disable \
+      --password-file=/tmp/pwned-passwords-sha1-ordered-by-count-v7.txt \
+      --first=10000
+```
+
+## Setting up behind reverse proxy with TLS
+
+TODO

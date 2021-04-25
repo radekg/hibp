@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/ory/viper"
+	"github.com/radekg/hibp/cmd/dataimport"
+	"github.com/radekg/hibp/cmd/migrate"
 	"github.com/radekg/hibp/cmd/serve"
 	"github.com/spf13/cobra"
 )
@@ -20,6 +22,8 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	rootCmd.AddCommand(dataimport.Command)
+	rootCmd.AddCommand(migrate.Command)
 	rootCmd.AddCommand(serve.Command)
 	cobra.OnInitialize(func() {
 		viper.AutomaticEnv()
