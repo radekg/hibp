@@ -57,10 +57,11 @@ func run(cmd *cobra.Command, _ []string) error {
 
 const schema = `
 CREATE TABLE public.hibp (
-	row_id serial NULL GENERATED ALWAYS AS IDENTITY,
+	row_id serial NOT NULL,
 	prefix varchar(5) NOT NULL,
 	hash varchar(40) NOT NULL,
-	count integer NOT NULL
+	count integer NOT NULL,
+    CONSTRAINT hibp_pkey PRIMARY KEY (row_id)
 );
 CREATE UNIQUE INDEX hibp_prefix_idx ON public.hibp (prefix,hash,count);
 `
