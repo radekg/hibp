@@ -94,13 +94,13 @@ func run(cmd *cobra.Command, _ []string) error {
 			continue
 		}
 
-		_, sqlErr := db.NamedExec("insert into hibp (`prefix`,`hash`,`count`) values (:prefix, :hash, :count)", row{Prefix: hash[0:5], Hash: hash, Count: count})
+		_, sqlErr := db.NamedExec("insert into hibp (\"prefix\",\"hash\",\"count\") values (:prefix, :hash, :count)", row{Prefix: hash[0:5], Hash: hash, Count: count})
 		if sqlErr != nil {
 			fmt.Fprintln(os.Stderr, "line", currentLine, "no inserted because of an SQL error", sqlErr)
 		}
 
 		if currentLine%1000 == 0 {
-			fmt.Println("imported ", currentLine, "no inserted because of an SQL error", sqlErr)
+			fmt.Println("imported", currentLine, "lines")
 		}
 	}
 
