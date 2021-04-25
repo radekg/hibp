@@ -1,4 +1,4 @@
-# Self-hosted HIBP password hash check only
+# Self-hosted HiBP password hash check only
 
 This is an example of self-hosted HiBP pwned password list API with the k-anonymity setting.
 
