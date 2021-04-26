@@ -20,6 +20,13 @@ services:
     restart: unless-stopped
     ports:
       - 15000:15000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.hibp.rule=Host(`your-hibp-api.example.com`)
+      - traefik.http.routers.hibp.entrypoints=hibp-https
+      - traefik.http.routers.hibp.service=hibp-svc
+      - traefik.http.routers.hibp.tls.certResolver=hibp-certresolver
+      - traefik.http.services.hibp-svc.loadbalancer.server.port=15000
     networks:
       - hibpexample
 networks:

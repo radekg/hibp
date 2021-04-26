@@ -100,7 +100,19 @@ curl http://localhost:15000/range/7C4A8
 
 ## Setting up behind reverse proxy with TLS
 
-TODO
+At the moment, Kratos does not allow providing a custom CA certificate to communicate with a custom HiBP API but it requires TLS. If a private certificate authority is required, the private CA chain can be installed on the operating system where Kratos is served from. Alternatively, a Let's Encrypt certificate can be issued to the HiBP application. The example contains the Traefik reverse proxy configured with an ACME LE resolver.
+
+To configure the example:
+
+- edit `examples/compose/compose.yml` file and set your actual host name the HiBP should be served in the `Host(``your-hibp-api.example.com``)` rule
+- edit the `certificatesResolvers.hibp-certresolver.acme.email` setting in the `examples/compose/etc/traefik/traefik.toml` file to your LE registration email address
+
+You can start the setup with the Traefik reverse proxy using the following command:
+
+```sh
+cd examples/compose/
+docker-compose -f traefik.yml -f compose.yml up
+```
 
 ## License
 
