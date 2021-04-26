@@ -1,4 +1,4 @@
-# Self-hosted HIBP password hash check only
+# Self-hosted HiBP password hash check only
 
 This is an example of self-hosted HiBP pwned password list API with the k-anonymity setting.
 
@@ -13,7 +13,7 @@ This code serves primarily as an example for setting up [self-hosted HiBP for Or
 Download the SHA-1 7zip archive from HiBP website. The most up to date file can be downloaded from https://haveibeenpwned.com/Passwords. The compressed file is 12.5GB, 26GB decompressed. The file is a text file with each line in the following format:
 
 ```
-SHA-SUM-41-CHARS-LONG:INT-COUNT
+SHA-SUM:INT-COUNT
 ```
 
 On Ubuntu (requires ~40GB free space in `/tmp`):
