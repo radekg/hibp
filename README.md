@@ -104,7 +104,7 @@ At the moment, Kratos does not allow providing a custom CA certificate to commun
 
 To configure the example:
 
-- edit `examples/compose/compose.yml` file and set your actual host name the HiBP should be served in the `Host(``your-hibp-api.example.com``)` rule
+- edit `examples/compose/compose.yml` file and set your actual host name the HiBP should be served in the ``Host(`your-hibp-api.example.com`)`` rule
 - edit the `certificatesResolvers.hibp-certresolver.acme.email` setting in the `examples/compose/etc/traefik/traefik.toml` file to your LE registration email address
 
 You can start the setup with the Traefik reverse proxy using the following command:
